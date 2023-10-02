@@ -7,10 +7,22 @@ export default function Page() {
   const [audiotext, setAudioText] = useState<string>("");
 
   function getAudio() {
-    const response = new SpeechSynthesisUtterance(audiotext);
-    response.voice = speechSynthesis.getVoices()[0];
-    response.rate = 0.8;
-    speechSynthesis.speak(response);
+    fetch("http://localhost:5000/synthesize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: audiotext }),
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }
 
   return (
